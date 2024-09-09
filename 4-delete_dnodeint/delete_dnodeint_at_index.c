@@ -11,43 +11,38 @@
  */
 int delete_dnodeint_at_index(dlistint_t **head, unsigned int index)
 {
-	dlistint_t *saved_head;
-	dlistint_t *tmp;
-	unsigned int p;
+    dlistint_t *current;
+    unsigned int i;
 
-	if (*head == NULL)
-	{
-		return (-1);
-	}
-	saved_head = *head;
-	p = 0;
-	while (p < index && *head != NULL)
-	{
-		*head = (*head)->next;
-		p++;
-	}
-	if (p != index)
-	{
-		*head = saved_head;
-		return (-1);
-	}
-	if (0 == index)
-	{
-		tmp = (*head)->next;
-		free(*head);
-		*head = tmp;
-		if (tmp != NULL)
-		{
-			tmp->prev = NULL;
-		}
-	}
-	else
-	{
-		(*head)->prev->prev = (*head)->prev;
-		free(*head);
-		if ((*head)->next)
-			(*head)->next->prev = (*head)->prev;
-		*head = saved_head;
-	}
-	return (1);
+    if (head == NULL || *head == NULL)
+        return (-1);
+
+    current = *head;
+
+    /* If deleting the head (first) node */
+    if (index == 0)
+    {
+        *head = current->next; /* Update head to the next node */
+        if (*head != NULL)
+            (*head)->prev = NULL; /* Set the new head's prev to NULL */
+        free(current); /* Free the old head */
+        return (1);
+    }
+
+    /* Traverse to the node to be deleted */
+    for (i = 0; current != NULL && i < index; i++)
+        current = current->next;
+
+    if (current == NULL) /* If the node does not exist */
+        return (-1);
+
+    /* Adjust the links to remove the node */
+    if (current->next != NULL)
+        current->next->prev = current->prev;
+
+    if (current->prev != NULL)
+        current->prev->next = current->next;
+
+    free(current); /* Free the node to be deleted */
+    return (1);
 }
